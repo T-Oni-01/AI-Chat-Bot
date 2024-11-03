@@ -1,0 +1,50 @@
+* Download and run the setup Ollama.
+* Verify setup worked. In terminal, type "ollama"
+* Side Note: To run your first ollama model, type "ollama run llama3.1" in terminal
+
+* Open VS Code: Type in terminal "python -m venv chatbot" this will create a virtual environment for our python chatbot
+* Activate the virtual environment and install packages using ".\venv" or ".\chatbot\Scripts\activate.bat". Depends on the shell we are using on windows (.\chatbot\Scripts\Activate.ps1) for PowerShell(our case)
+
+* Side Note: If windows PowerShell is restricting you from activating, open PowerShell as an admin > Type " Get-ExecutionPolicy" to see if the status is restricted > type "Set-ExecutionPolicy RemoteSigned" to allow scripts to run, you can set the execution policy to RemoteSigned, which allows local scripts to run but requires that downloaded scripts are signed by a trusted publisher. (if you prefer to only allow the script to run for the current session, you can use "Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass").
+
+* Once running, type "pip install langchain langchain-ollama ollama" to install the ollama virtual models to our virtual environment.
+
+* Create a python file for writing out code.
+
+* After writing the code, call the chatbotbot in the terminal by typing "python main.py" (Note, make sure you are in your file location).
+
+***CODE BELOW**
+
+from langchain_ollama import OllamaLLM
+from langchain_core.prompts import ChatPromptTemplate #Langchains allows us to more easily interact with LLMS with queries and prompts
+
+#This will be for creating a template for which the chatbot will respond to the questions given
+#To embed a variable inside of prompt, we use the curly braces
+template = """ 
+Answer the question below.
+
+Here is the conversation history: {context}
+
+Question {question}
+
+Answer:
+"""
+
+model = OllamaLLM(model="llama3.1")
+prompt = ChatPromptTemplate.from_template(template)#Creates our prompt
+chain = prompt | model #Creates a chain bewtween the prompt and model to be invoked automatically
+
+def handle_conversation():
+    context = ""
+    print("Welcome to the AI ChatBot! Type 'exit' to quit.")
+    while True:
+        user_input = input("You: ")
+        if user_input.lower() == "exit":#Ends our code if the user presses exit
+            break
+
+        result = chain.invoke({"context": context, "question": user_input})#calls the context we defined and also the question the user enters
+        print("Bot: ", result)#Returns the Ai's response
+        context += f"\nUser: {user_input}\nAI: {result}"#stores what the user asked and what the bot responds so the ai can know the previous conversations
+
+if __name__ =="__main__":#This means we are directlt executing the python file
+    handle_conversation()
